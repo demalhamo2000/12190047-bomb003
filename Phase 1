@@ -1,0 +1,111 @@
+Bom Lab : Bomb3 : Phase_1
+
+objdump -d bomb > bomb.s            						//diassemble the code of bomb.c file into bomb.s file 
+
+ chmod +x bomb 			   						//grants permission to access the file .
+ vim bomb.s			   						//used for reading the bomb.s file
+  
+               
+gdb bomb			  						//debugger which execute the assembly code.
+
+(gdb) b phase_1                       						//Set up break point at phase 1(Pause execution upon 											  entering phase_1 function)
+Breakpoint 1 at 0x400e8d
+(gdb) b explode_bomb								// set up break point of explode_bomb to protect the bomb 											from exploding(Pause execution upon entering explode_bomb 											function)
+Breakpoint 2 at 0x40142a
+(gdb) run									//running the program
+Starting program: /home/lab2/Desktop/12190047/CS1/Assignment 1/bomb003/bomb 
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+welcome										//input any string and lets say the string is welcome
+
+Breakpoint 1, 0x0000000000400e8d in phase_1 ()
+(gdb) disas									//open assembly file.
+Dump of assembler code for function phase_1:
+=> 0x0000000000400e8d <+0>:	sub    $0x8,%rsp 				//building stack frame with 8 more bytes
+   0x0000000000400e91 <+4>:	mov    $0x4023b0,%esi 				//the input that we enter is stored in esi, then 											move it to 0x4023b0
+   0x0000000000400e96 <+9>:	call   0x40132b <strings_not_equal> 		//here function<strings_not_equal>is calling to 										compare input string with answer
+   0x0000000000400e9b <+14>:	test   %eax,%eax				
+   0x0000000000400e9d <+16>:	je     0x400ea4 <phase_1+23>			
+   0x0000000000400e9f <+18>:	call   0x40142a <explode_bomb>
+   0x0000000000400ea4 <+23>:	add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:	ret    
+End of assembler dump.
+(gdb) u*0x0000000000400e9b                                     			//Continue executing until the program hits at a 											particular given address 
+0x0000000000400e9b in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>:	sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:	mov    $0x4023b0,%esi
+   0x0000000000400e96 <+9>:	call   0x40132b <strings_not_equal>
+=> 0x0000000000400e9b <+14>:	test   %eax,%eax				//here it will perform one test case where it compares 											the input string with answer
+   0x0000000000400e9d <+16>:	je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:	call   0x40142a <explode_bomb>
+   0x0000000000400ea4 <+23>:	add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:	ret    
+End of assembler dump.
+(gdb) i r									//It will display all the vlaues of register in hexa or 										in decimal.
+rax            0x1                 1						//%rax value is not equal to 0! which means it will jump 											to the explode_bomb function
+rbx            0x4021e0            4202976
+rcx            0x7                 7
+rdx            0x1                 1
+rsi            0x4023b0            4203440
+rdi            0x4023e4            4203492
+rbp            0x0                 0x0
+rsp            0x7fffffffdeb0      0x7fffffffdeb0
+r8             0x6037a0            6305696
+r9             0x6046b0            6309552
+r10            0x400669            4195945
+r11            0x7ffff7e008a0      140737352042656
+r12            0x400c60            4197472
+r13            0x0                 0
+r14            0x0                 0
+r15            0x0                 0
+rip            0x400e9b            0x400e9b <phase_1+14>
+eflags         0x283               [ CF SF IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+(gdb) ni									//moving to next instruction
+0x0000000000400e9d in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>:	sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:	mov    $0x4023b0,%esi
+   0x0000000000400e96 <+9>:	call   0x40132b <strings_not_equal>
+   0x0000000000400e9b <+14>:	test   %eax,%eax
+=> 0x0000000000400e9d <+16>:	je     0x400ea4 <phase_1+23>			//If the input string is equal to answer then jump the 											line<+23> else it will move to explode_bomb function.
+   0x0000000000400e9f <+18>:	call   0x40142a <explode_bomb>
+   0x0000000000400ea4 <+23>:	add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:	ret    
+End of assembler dump.
+(gdb) ni
+0x0000000000400e9f in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>:	sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:	mov    $0x4023b0,%esi
+   0x0000000000400e96 <+9>:	call   0x40132b <strings_not_equal>
+   0x0000000000400e9b <+14>:	test   %eax,%eax
+   0x0000000000400e9d <+16>:	je     0x400ea4 <phase_1+23>
+=> 0x0000000000400e9f <+18>:	call   0x40142a <explode_bomb> 			//reaches to the explode_bomb function
+   0x0000000000400ea4 <+23>:	add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:	ret    
+End of assembler dump.
+(gdb) x/s 0x4023b0								//To find the correct string answer of phase1
+0x4023b0:	"Border relations with Canada have never been better."
+(gdb) delete									//It will delete all the break point.
+Delete all breakpoints? (y or n) y
+(gdb) run									//running the program
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/lab2/Desktop/12190047/CS1/Assignment 1/bomb003/bomb 
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Border relations with Canada have never been better.				//input the string(the value of(x/s 0x4023b0))
+Phase 1 defused. How about the next one?
+
+
+
